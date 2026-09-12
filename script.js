@@ -101,6 +101,15 @@ document.addEventListener('DOMContentLoaded', () => {
     navbar.addEventListener('mouseleave', () => {
       resetIdleTimer();
     });
+
+    // Clicking logo smoothly scrolls to top
+    const navLogo = navbar.querySelector('.nav-logo');
+    if (navLogo) {
+      navLogo.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
   }
 
   // 2. Parallax Depth Effect on Scroll
@@ -500,6 +509,33 @@ document.addEventListener('DOMContentLoaded', () => {
           updateCarousel(currentProjectIdx + 1);
         }
       }
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // 5. Contact Form Submission (UI Feedback)
+  // -------------------------------------------------------------------------
+  const contactForm = document.getElementById('contact-form');
+  const contactSubmitBtn = document.getElementById('contact-submit-btn');
+
+  if (contactForm && contactSubmitBtn) {
+    contactForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      contactSubmitBtn.disabled = true;
+      contactSubmitBtn.innerHTML = `<span>MESSAGE SENT</span>`;
+
+      setTimeout(() => {
+        contactForm.reset();
+        contactSubmitBtn.disabled = false;
+        contactSubmitBtn.innerHTML = `
+          <span>SEND MESSAGE</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        `;
+      }, 3000);
     });
   }
 
