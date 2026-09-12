@@ -14,9 +14,84 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // -------------------------------------------------------------------------
-  // 1b. Auto-Hiding Navbar (Cumulative Scroll Delta & Idle Timeout)
+  // 1b. Auto-Hiding Navbar & Mobile Navigation
   // -------------------------------------------------------------------------
   const navbar = document.getElementById('navbar');
+  const navHamburger = document.getElementById('nav-hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+  let isMobileMenuOpen = false;
+
+  function openMobileMenu() {
+    if (!navHamburger || !mobileMenu) return;
+    isMobileMenuOpen = true;
+    navHamburger.classList.add('is-active');
+    navHamburger.setAttribute('aria-expanded', 'true');
+    mobileMenu.classList.add('is-open');
+    mobileMenu.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('menu-open');
+    if (navbar) {
+      navbar.classList.remove('nav-hidden');
+    }
+  }
+
+  function closeMobileMenu() {
+    if (!navHamburger || !mobileMenu) return;
+    isMobileMenuOpen = false;
+    navHamburger.classList.remove('is-active');
+    navHamburger.setAttribute('aria-expanded', 'false');
+    mobileMenu.classList.remove('is-open');
+    mobileMenu.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('menu-open');
+  }
+
+  function toggleMobileMenu() {
+    if (isMobileMenuOpen) {
+      closeMobileMenu();
+    } else {
+      openMobileMenu();
+    }
+  }
+
+  if (navHamburger && mobileMenu) {
+    navHamburger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMobileMenu();
+    });
+
+    // Close mobile menu when any mobile nav link is clicked
+    mobileNavLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        const targetId = link.getAttribute('href');
+        closeMobileMenu();
+
+        if (targetId && targetId.startsWith('#')) {
+          const targetEl = document.querySelector(targetId);
+          if (targetEl) {
+            e.preventDefault();
+            setTimeout(() => {
+              targetEl.scrollIntoView({ behavior: 'smooth' });
+            }, 120);
+          }
+        }
+      });
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isMobileMenuOpen) {
+        closeMobileMenu();
+      }
+    });
+
+    // Close on resize if window expands past mobile breakpoint
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768 && isMobileMenuOpen) {
+        closeMobileMenu();
+      }
+    });
+  }
+
   if (navbar) {
     let lastScrollY = window.scrollY;
     let cumulativeDelta = 0;
@@ -31,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function hideNavbar() {
+      if (isMobileMenuOpen) return;
       if (window.scrollY > TOP_THRESHOLD) {
         navbar.classList.add('nav-hidden');
       }
@@ -38,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function resetIdleTimer() {
       clearTimeout(idleNavTimer);
+      if (isMobileMenuOpen) return;
       if (window.scrollY > TOP_THRESHOLD) {
         idleNavTimer = setTimeout(() => {
           hideNavbar();
@@ -47,6 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleNavbarScroll() {
+      if (isMobileMenuOpen) return;
       const currentScrollY = window.scrollY;
       const stepDelta = currentScrollY - lastScrollY;
 
@@ -102,11 +180,14 @@ document.addEventListener('DOMContentLoaded', () => {
       resetIdleTimer();
     });
 
-    // Clicking logo smoothly scrolls to top
+    // Clicking logo smoothly scrolls to top and closes mobile menu if open
     const navLogo = navbar.querySelector('.nav-logo');
     if (navLogo) {
       navLogo.addEventListener('click', (e) => {
         e.preventDefault();
+        if (isMobileMenuOpen) {
+          closeMobileMenu();
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     }
