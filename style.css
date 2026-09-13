@@ -957,20 +957,26 @@ a {
 }
 
 .mockup-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: top center;
   display: block;
+  z-index: 2;
+  background-color: #121317;
 }
 
 .mockup-img.img-fallback {
-  display: none;
+  display: none !important;
 }
 
 /* Fallback Placeholders with Stylized Graphics & Project Titles */
 .mockup-placeholder {
   position: absolute;
   inset: 0;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -980,6 +986,10 @@ a {
   text-align: center;
   user-select: none;
   background: radial-gradient(circle at 50% 35%, #2a2d37 0%, #15161b 80%);
+}
+
+.mockup-placeholder.is-hidden {
+  display: none !important;
 }
 
 .placeholder-theme-1 {

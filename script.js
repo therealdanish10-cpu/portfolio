@@ -313,6 +313,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       projectsData = data || [];
 
+      // Temporary debug log: log screenshot_url for each project
+      projectsData.forEach((p, i) => {
+        console.log(`[Cartera Projects] #${i + 1} "${p.title}" -> screenshot_url:`, p.screenshot_url);
+      });
+
       if (projectsData.length === 0) {
         renderEmptyCarousel('No projects published yet.');
         return;
@@ -379,6 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const tagList = (proj.tech_tags || '').split(',').map(t => t.trim()).filter(Boolean);
       const topTag = tagList[0] || 'FEATURED WORK';
       const subTag = tagList[1] || 'WEB EXPERIENCE';
+      const hasScreenshot = Boolean(proj.screenshot_url && proj.screenshot_url.trim());
 
       cardsHtml += `
         <div class="mockup-card ${positionClass}" 
@@ -396,20 +402,26 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="browser-address-bar font-mono">${escapeHtml(address)}</div>
             </div>
             <div class="browser-viewport">
-              ${proj.screenshot_url ? `
+              ${hasScreenshot ? `
                 <img 
-                  src="${escapeHtml(proj.screenshot_url)}" 
+                  src="${escapeHtml(proj.screenshot_url.trim())}" 
                   alt="${escapeHtml(proj.title)} Preview" 
                   class="mockup-img" 
-                  loading="lazy"
-                  onerror="this.classList.add('img-fallback');"
+                  ${idx === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'}
+                  onerror="this.classList.add('img-fallback'); const fb = this.nextElementSibling; if (fb) fb.classList.remove('is-hidden');"
                 >
-              ` : ''}
-              <div class="mockup-placeholder ${themeClass}">
-                <span class="placeholder-tag font-mono">// ${escapeHtml(topTag)}</span>
-                <h3 class="placeholder-name">${escapeHtml(proj.title)}</h3>
-                <span class="placeholder-meta">${escapeHtml(subTag)}</span>
-              </div>
+                <div class="mockup-placeholder ${themeClass} is-hidden">
+                  <span class="placeholder-tag font-mono">// ${escapeHtml(topTag)}</span>
+                  <h3 class="placeholder-name">${escapeHtml(proj.title)}</h3>
+                  <span class="placeholder-meta">${escapeHtml(subTag)}</span>
+                </div>
+              ` : `
+                <div class="mockup-placeholder ${themeClass}">
+                  <span class="placeholder-tag font-mono">// ${escapeHtml(topTag)}</span>
+                  <h3 class="placeholder-name">${escapeHtml(proj.title)}</h3>
+                  <span class="placeholder-meta">${escapeHtml(subTag)}</span>
+                </div>
+              `}
             </div>
           </div>
         </div>
